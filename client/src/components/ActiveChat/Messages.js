@@ -5,6 +5,13 @@ import moment from "moment";
 
 const Messages = (props) => {
   const { messages, otherUser, userId } = props;
+  // Sort the messages ascending by createdAt, so that earlier messages appear at the top
+  messages.sort((messageA, messageB) => {
+    // messageA should precede messageB when it was created earlier than message B
+    if (messageA.createdAt < messageB.createdAt) return -1;
+    else if (messageA.createdAt > messageB.createdAt) return 1;
+    else return 0;
+  });
 
   return (
     <Box>
@@ -14,7 +21,12 @@ const Messages = (props) => {
         return message.senderId === userId ? (
           <SenderBubble key={message.id} text={message.text} time={time} />
         ) : (
-          <OtherUserBubble key={message.id} text={message.text} time={time} otherUser={otherUser} />
+          <OtherUserBubble
+            key={message.id}
+            text={message.text}
+            time={time}
+            otherUser={otherUser}
+          />
         );
       })}
     </Box>
