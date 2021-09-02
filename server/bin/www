@@ -47,6 +47,12 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Notify that messages have been read
+  // *Warning: this broadcasts to all clients, in the future broadcast to only the receiving client*
+  socket.on("read-messages", (message) => {
+    socket.broadcast.emit("read-messages", message);
+  });
+
   socket.on("logout", (id) => {
     if (onlineUsers.includes(id)) {
       userIndex = onlineUsers.indexOf(id);
