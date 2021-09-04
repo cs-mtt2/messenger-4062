@@ -50,14 +50,36 @@ router.post("/", async (req, res, next) => {
 });
 
 // expects { messages } in body
-router.put("/", async (req, res, next) => {
+router.put("/read", async (req, res, next) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
     }
+
+    const { id } = req.user;
     const { messages } = req.body;
 
-    console.log("BODY", req.body);
+    if (messages.length === 0) {
+      return res.sendStatus(400);
+    }
+
+    // Only handle the messages from one conversation and validate
+    // that all messages are sent by the otherUser and validate conversation
+    const senderId = messages[0].senderId;
+
+    let conversation = await Conversation.findConversation(
+      senderId,
+      id
+    );
+
+    const allMessagesFromConversation = messages.filter((message) => {
+      return message.senderId === senderId && conversation.id === message.conversationId;
+    })
+
+    if (allMessagesFromConversation.length !== messages.length){
+      return res.sendStatus(401);
+    }
+
     const messageIds = messages.map((message) => {
       return message.id;
     });
@@ -71,8 +93,6 @@ router.put("/", async (req, res, next) => {
     const jsonToReturn = {
       messages: updateArray[1],
     };
-
-    console.log("server", updateArray);
 
     res.json(jsonToReturn);
   } catch (error) {

@@ -144,14 +144,13 @@ export const postMessage = (body) => async (dispatch) => {
 
 const readMessages = (messages) => {
   socket.emit("read-messages", messages);
-  console.log("emitting read messages", messages);
 };
 
 // format to send: {messages}
 // array of type message
 export const putMessageRead = (body) => async (dispatch) => {
   try {
-    const { data } = await axios.put("/api/messages", body);
+    const { data } = await axios.put("/api/messages/read", body);
     const { messages } = data;
 
     if (messages.length > 0) {

@@ -18,8 +18,8 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   notification: {
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: theme.margin,
+    marginRight: theme.margin,
   }
 }));
 
@@ -42,7 +42,7 @@ const Chat = (props) => {
         online={otherUser.online}
         sidebar={true}
       />
-      <ChatContent conversation={conversation} />
+      <ChatContent conversation={conversation} shouldDisplayNotification={shouldDisplayNotification} />
       {shouldDisplayNotification && (
           <Chip className={classes.notification} size="small" color="primary" label={unreadMessages.length}/>
       )}
