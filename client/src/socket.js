@@ -23,7 +23,6 @@ socket.on("connect", () => {
     store.dispatch(setNewMessage(data.message, data.sender));
   });
   socket.on("read-messages", (messages) => {
-    console.log("socket has read message", messages);
     store.dispatch(updateMessagesRead(messages));
   });
 });
