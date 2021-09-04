@@ -18,8 +18,8 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   notification: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(2.5),
+    marginRight: theme.spacing(2.5),
   }
 }));
 
