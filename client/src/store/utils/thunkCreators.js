@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  updateMessagesRead,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -73,14 +74,35 @@ export const fetchConversations = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/api/conversations");
 
-    // Sort all conversations by earliest message to latest message
-    data.forEach((convo) =>
+    data.forEach((convo) => {
+      // Sort all conversations by earliest message to latest message
       convo.messages.sort((messageA, messageB) => {
         if (messageA.createdAt < messageB.createdAt) return -1;
         else if (messageA.createdAt > messageB.createdAt) return 1;
         else return 0;
-      })
-    );
+      });
+      // Look for all messages that hasn't been read by us
+      const messagesNotRead = convo.messages.filter((message) => {
+        return (
+          message.senderId === convo.otherUser.id &&
+          !message.readByRecipient
+        );
+      });
+
+      // Look for the all messages that has been read by otherUser
+      const messagesRead = convo.messages.filter((message) => {
+        return (
+          message.senderId !== convo.otherUser.id &&
+          message.readByRecipient
+        );
+      });
+
+      // cache the messages that haven't been read
+      convo.unreadMessages = messagesNotRead.length;
+      // cache the last message read by otherUser
+      convo.lastMessageOtherRead =
+        messagesRead[messagesRead?.length - 1];
+    });
 
     dispatch(gotConversations(data));
   } catch (error) {
@@ -115,6 +137,26 @@ export const postMessage = (body) => async (dispatch) => {
     }
 
     sendMessage(data, body);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const readMessages = (messages) => {
+  socket.emit("read-messages", messages);
+};
+
+// format to send: {messages}
+// array of type message
+export const putMessageRead = (body) => async (dispatch) => {
+  try {
+    const { data } = await axios.put("/api/messages/read", body);
+    const { messages } = data;
+
+    if (messages?.length > 0) {
+      dispatch(updateMessagesRead(messages));
+      readMessages(messages);
+    }
   } catch (error) {
     console.error(error);
   }

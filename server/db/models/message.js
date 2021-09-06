@@ -10,6 +10,9 @@ const Message = db.define("message", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+  readByRecipient: {
+    type: Sequelize.BOOLEAN,
+  },
 });
 
 module.exports = Message;

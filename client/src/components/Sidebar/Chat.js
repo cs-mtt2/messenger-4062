@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@material-ui/core";
+import { Box, Chip } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
@@ -16,17 +16,23 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       cursor: "grab"
     }
+  },
+  notification: {
+    marginLeft: theme.spacing(2.5),
+    marginRight: theme.spacing(2.5),
   }
 }));
 
 const Chat = (props) => {
   const classes = useStyles();
-  const { conversation } = props;
-  const { otherUser } = conversation;
+  const { conversation, activeConversation } = props;
+  const { otherUser, unreadMessages } = conversation;
 
   const handleClick = async (conversation) => {
     await props.setActiveChat(conversation.otherUser.username);
   };
+  
+  const shouldDisplayNotification = unreadMessages > 0 && activeConversation !== conversation.otherUser.username;
 
   return (
     <Box onClick={() => handleClick(conversation)} className={classes.root}>
@@ -36,7 +42,10 @@ const Chat = (props) => {
         online={otherUser.online}
         sidebar={true}
       />
-      <ChatContent conversation={conversation} />
+      <ChatContent conversation={conversation} shouldDisplayNotification={shouldDisplayNotification} />
+      {shouldDisplayNotification && (
+          <Chip className={classes.notification} size="small" color="primary" label={unreadMessages}/>
+      )}
     </Box>
   );
 };
