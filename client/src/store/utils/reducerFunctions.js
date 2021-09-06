@@ -6,12 +6,12 @@ export const addMessageToStore = (state, payload) => {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
-      unreadMessages: [],
+      unreadMessages: 0,
     };
     newConvo.latestMessageText = message.text;
     // If the other user sent the message we add to unreadmessages
     if (newConvo.otherUser.id === message.senderId) {
-      newConvo.unreadMessages.push(message);
+      newConvo.unreadMessages += 1;
     }
     return [newConvo, ...state];
   }
@@ -24,7 +24,7 @@ export const addMessageToStore = (state, payload) => {
       convoCopy.latestMessageText = message.text;
       // If the other user sent the message we add to unreadmessages
       if (convo.otherUser.id === message.senderId) {
-        convoCopy.unreadMessages.push(message);
+        convoCopy.unreadMessages += 1;
       }
       return convoCopy;
     } else {
@@ -85,7 +85,7 @@ export const addNewConvoToStore = (state, recipientId, message) => {
       convoCopy.id = message.conversationId;
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
-      convoCopy.unreadMessages= [];
+      convoCopy.unreadMessages= 0;
       return convoCopy;
     } else {
       return convo;
@@ -103,21 +103,14 @@ export const updateMessageReadToStore = (state, messages) => {
         const foundMessage = convoCopy.messages.find((msg) => {
           return msg.id === message.id;
         });
-
+        
         // Update locally for all messages that have been read by other clients
         if (foundMessage) {
           foundMessage.readByRecipient = true;
+          // Decrement our unreadmessage count and clamp at zero to prevent negative unread messages
+          convoCopy.unreadMessages = convoCopy.unreadMessages > 0 ? convoCopy.unreadMessages - 1 : 0;
         }
-
-        const readMessageIndex = convo.unreadMessages.findIndex((msg) => {
-          return msg.id === message.id;
-        });
-
-        // Remove messages from unreadMessages if there is a match
-        if (readMessageIndex >= 0) {
-          convo.unreadMessages.splice(readMessageIndex, 1);
-        }
-
+        
         // Update the lastMessageOtherRead if they read a message in this event
         if (convoCopy.otherUser.id !== message.senderId) {
           convoCopy.lastMessageOtherRead = foundMessage;

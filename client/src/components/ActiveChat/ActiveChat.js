@@ -27,10 +27,11 @@ const ActiveChat = (props) => {
   const conversation = props.conversation || {};
   const { unreadMessages, lastMessageOtherRead } = conversation;
 
+
   // Read all unread messages for this particular conversation (has to be active for this component to render)
-  if (unreadMessages && unreadMessages.length > 0) {
+  if (unreadMessages > 0) {
     const reqBody = {
-      messages: unreadMessages,
+      conversationId: conversation.id,
     };
 
     props.putMessageRead(reqBody);

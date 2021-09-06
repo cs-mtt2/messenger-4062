@@ -57,37 +57,25 @@ router.put("/read", async (req, res, next) => {
     }
 
     const { id } = req.user;
-    const { messages } = req.body;
+    const { conversationId } = req.body;
 
-    if (messages.length === 0) {
+    if (!conversationId) {
       return res.sendStatus(400);
     }
 
-    // Only handle the messages from one conversation and validate
-    // that all messages are sent by the otherUser and validate conversation
-    const senderId = messages[0].senderId;
+    let conversation = await Conversation.findByPk(conversationId);
 
-    let conversation = await Conversation.findConversation(
-      senderId,
-      id
-    );
+    let otherUserId = conversation.user1Id === id ? conversation.user2Id : conversation.user1Id;
 
-    const allMessagesFromConversation = messages.filter((message) => {
-      return message.senderId === senderId && conversation.id === message.conversationId;
-    })
-
-    if (allMessagesFromConversation.length !== messages.length){
+    // Only allow users that are in the conversation to read messages
+    if (conversation.user1Id !== id && conversation.user2Id !== id){
       return res.sendStatus(401);
     }
-
-    const messageIds = messages.map((message) => {
-      return message.id;
-    });
 
     // Returns amount of rows updated and the message that was updated in the form of array [rowsUpdated, Message]
     const updateArray = await Message.update(
       { readByRecipient: true },
-      { returning: true, where: { id: messageIds } }
+      { returning: true, where: { conversationId: conversationId, senderId: otherUserId, readByRecipient: false } }
     );
 
     const jsonToReturn = {

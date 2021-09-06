@@ -85,7 +85,7 @@ export const fetchConversations = () => async (dispatch) => {
       const messagesNotRead = convo.messages.filter((message) => {
         return (
           message.senderId === convo.otherUser.id &&
-          message.readByRecipient === false
+          !message.readByRecipient
         );
       });
 
@@ -93,15 +93,15 @@ export const fetchConversations = () => async (dispatch) => {
       const messagesRead = convo.messages.filter((message) => {
         return (
           message.senderId !== convo.otherUser.id &&
-          message.readByRecipient === true
+          message.readByRecipient
         );
       });
 
       // cache the messages that haven't been read
-      convo.unreadMessages = messagesNotRead;
+      convo.unreadMessages = messagesNotRead.length;
       // cache the last message read by otherUser
       convo.lastMessageOtherRead =
-        messagesRead.length > 0 ? messagesRead[messagesRead.length - 1] : null;
+        messagesRead[messagesRead?.length - 1];
     });
 
     dispatch(gotConversations(data));
@@ -153,7 +153,7 @@ export const putMessageRead = (body) => async (dispatch) => {
     const { data } = await axios.put("/api/messages/read", body);
     const { messages } = data;
 
-    if (messages.length > 0) {
+    if (messages?.length > 0) {
       dispatch(updateMessagesRead(messages));
       readMessages(messages);
     }

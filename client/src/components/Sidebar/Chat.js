@@ -32,7 +32,7 @@ const Chat = (props) => {
     await props.setActiveChat(conversation.otherUser.username);
   };
   
-  const shouldDisplayNotification = unreadMessages && unreadMessages.length > 0 && activeConversation !== conversation.otherUser.username;
+  const shouldDisplayNotification = unreadMessages > 0 && activeConversation !== conversation.otherUser.username;
 
   return (
     <Box onClick={() => handleClick(conversation)} className={classes.root}>
@@ -44,7 +44,7 @@ const Chat = (props) => {
       />
       <ChatContent conversation={conversation} shouldDisplayNotification={shouldDisplayNotification} />
       {shouldDisplayNotification && (
-          <Chip className={classes.notification} size="small" color="primary" label={unreadMessages.length}/>
+          <Chip className={classes.notification} size="small" color="primary" label={unreadMessages}/>
       )}
     </Box>
   );

@@ -37,7 +37,7 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={shouldDisplayNotification === true ? classes.previewTextBold : classes.previewText}>
+        <Typography className={shouldDisplayNotification ? classes.previewTextBold : classes.previewText}>
           {latestMessageText}
         </Typography>
       </Box>
